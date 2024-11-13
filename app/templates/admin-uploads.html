@@ -1,0 +1,33 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Admin Page {% endblock %} 
+
+{% block content %}
+    <form method=post enctype="multipart/form-data">
+    <dl>
+        {{ form.csrf_token }}
+        {{ form.file}}
+        <br>
+        {{ form.check_public}} {{ form.check_public.label}}
+    </dl>
+        {{ error }}
+
+    <p><input type=submit value=Upload>
+        
+        {% for file in files_list %}
+            <p>{{file.name}} 
+                <a href={{ file.generated}} >Download</a> | 
+                <a href={{ file.public_change}}>{% if file.public %} Public {% else %} Protected {% endif %}</a>| 
+                {{file.format}} | 
+                {{file.size}} | 
+                {{file.download_count}}
+                <a href={{ file.delete_link}}>Delete</a>
+            </p>
+        {% endfor %}
+
+        <script>
+            if ( window.history.replaceState ) {
+                window.history.replaceState( null, null, window.location.href );
+            }
+        </script>
+{% endblock content %}
