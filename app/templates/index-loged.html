@@ -12,6 +12,8 @@
     <h1>Loged</h1>
 
     {% for file in files_list %}
-    <p>{{file.name}} <a href={{ file.generated}} >Download</a> | {{ file.public}} | {{file.format}} | {{file.size}} | {{file.download_count}}</p>
+    <p>{{file.name}} 
+        <a href={{ "/uploads/" ~ file.generated}}><button>Download</button></a>|
+        | {{ file.public}} | {{file.format}} | {{file.size}} | {{file.download_count}}</p>
     {% endfor %}
 {% endblock content %}

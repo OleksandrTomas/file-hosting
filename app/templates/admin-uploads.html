@@ -3,29 +3,39 @@
 {% block title %} Admin Page {% endblock %} 
 
 {% block content %}
-    <form method=post enctype="multipart/form-data">
-    <dl>
-        {{ form.csrf_token }}
-        {{ form.file}}
+    <form method=post enctype="multipart/form-data" id="upload-file" action="/admin/uploads/new">
+        {{ form.csrf_token(form="upload-file") }}
+        {{ form.file(form="upload-file")}}
         <br>
-        {{ form.check_public}} {{ form.check_public.label}}
-    </dl>
-        {{ error }}
+        {{ form.check_public(form="upload-file")}} {{ form.check_public.label}}
+        <p><input type=submit value=Upload>
+    </form>
+    <br></br>
+    
 
-    <p><input type=submit value=Upload>
-        
+    <form onsubmit="() => window.location.reload();"  method=post id="change-delete-file">
+        {{ form.csrf_token}}
+        <input type=submit formaction="/admin/uploads/public-change/" value="Change Public Status">
+        <input type=submit formaction="/admin/uploads/delete/" value="Delete">
         {% for file in files_list %}
             <p>{{file.name}} 
-                <a href={{ file.generated}} >Download</a> | 
-                <a href={{ file.public_change}}>{% if file.public %} Public {% else %} Protected {% endif %}</a>| 
+                <button formaction={{ "/uploads/" ~ file.generated}} >Download</button>|
+                {% if file.public %} Public {% else %} Protected {% endif %} |
                 {{file.format}} | 
                 {{file.size}} | 
                 {{file.download_count}}
-                <a href={{ file.delete_link}}>Delete</a>
+                <input type="checkbox" name ="names" value={{ file.generated}}>
             </p>
         {% endfor %}
-
+        
+    </form>
         <script>
+            function downn(){
+
+            }
+            function refreshPage(){
+               location.reload ? location.reload() : location = location;
+           }
             if ( window.history.replaceState ) {
                 window.history.replaceState( null, null, window.location.href );
             }

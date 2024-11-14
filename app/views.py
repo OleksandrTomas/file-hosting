@@ -33,7 +33,7 @@ def index():
         files_list = []
         for file in files:
             files_list.append({"name":file.file_name,
-                                "generated":url_for('download_file', file_name = file.generated_name ),
+                                "generated":file.generated_name,
                                 "format":file.format,
                                 "size":file.size,
                                 "download_count":file.download_count})
@@ -113,7 +113,7 @@ def register_admin():
     return redirect(url_for('login'))
 
 # admin page for 
-@app.route('/admin/uploads', methods = ["GET", "POST"])
+@app.route('/admin/uploads', methods = ["GET"])
 @login_required
 def admin_uploads():
     # if user is admin
@@ -126,76 +126,89 @@ def admin_uploads():
             files_list = []
             for file in files:
                 files_list.append({"name":file.file_name,
-                                   "generated":url_for('download_file', file_name = file.generated_name ),
+                                   "generated":file.generated_name,
                                    "public":file.public,
                                    "format":file.format,
-                                   "public_change":url_for('file_public_change', file_name = file.generated_name ),
                                    "size":file.size,
-                                   "download_count":file.download_count,
-                                   "delete_link":url_for('file_delete', file_name = file.generated_name )})
+                                   "download_count":file.download_count})
             # pass form, files info, csrf token to template and render 
             return render_template("admin-uploads.html", form = form, files_list = files_list, csrf = csrf)
-        if request.method == 'POST':
-            # if form valid
-            if form.validate_on_submit():
-                # get files list
-                files = form.file.data
-                # is files need to upload public
-                public = form.check_public.data
-                for f in files:
-                    filename = secure_filename(f.filename)
-                    name, format = os.path.splitext(filename)
-                    # generate new name for file to prevent overwriting
-                    generated_name = ''.join(random.choices(string.ascii_letters + string.digits, k=50))
-                    # construct path for file
-                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], generated_name+format)
-                    f.save(file_path)
-                    # if saved successfuly write file info into db
-                    if os.path.isfile(file_path):
-                        size = float(os.path.getsize(file_path))/1000 # KB
-                        file = File(name, generated_name, public, format, size)
-                        file.save()
-                    else:
-                        flash("Error Occured. Some files was not uploaded")
-                return redirect(url_for('admin_uploads'))
     else:
         return redirect(url_for('index'))
 
-# delete file by link
-@app.route('/admin/uploads/detete/<file_name>')
+@app.route('/admin/uploads/new', methods = ["POST"])
 @login_required
-def file_delete(file_name):
+def admin_uploads_new():
+    # if user is admin
     if current_user.admin_role:
-        # find file 
-        found_file = File.query.filter_by(generated_name = file_name).first()
-        if found_file == None:
+        # get wtform for files uploading  
+        form = FileUploadForm()
+        # if form valid
+        if form.validate_on_submit():
+            # get files list
+            files = form.file.data
+            # is files need to upload public
+            public = form.check_public.data
+            for f in files:
+                filename = secure_filename(f.filename)
+                name, format = os.path.splitext(filename)
+                # generate new name for file to prevent overwriting
+                generated_name = ''.join(random.choices(string.ascii_letters + string.digits, k=50))
+                # construct path for file
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], generated_name+format)
+                f.save(file_path)
+                # if saved successfuly write file info into db
+                if os.path.isfile(file_path):
+                    size = float(os.path.getsize(file_path))/1000 # KB
+                    file = File(name, generated_name, public, format, size)
+                    file.save()
+                else:
+                    flash("Error Occured. Some files was not uploaded")
             return redirect(url_for('admin_uploads'))
-        # construct path to file in file system
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], found_file.generated_name+found_file.format)
-        if os.path.exists(file_path):
-            os.remove(file_path)
-        # if file not exist delete from db
-        if not os.path.exists(file_path):
-            File.query.filter_by(generated_name = file_name).delete()
-            db.session.commit()
-    return redirect(url_for('admin_uploads'))
+    else:
+        return redirect(url_for('index'))
 
-# change public file  status by link to protected or backwards
-@app.route('/admin/uploads/public-change/<file_name>')
+# delete files by names
+@app.route('/admin/uploads/delete/', methods = ["POST"])
 @login_required
-def file_public_change(file_name):
+def file_delete():
     if current_user.admin_role:
-        # change public file to protected or backwards
-        found_file = File.query.filter_by(generated_name = file_name).first()
-        if found_file == None:
-            return redirect(url_for('admin_uploads'))
-        found_file.public = not found_file.public
+        # files that was checked
+        files = request.form.getlist('names')
+        # delete files from db and file system
+        for file_name in files:
+            found_file = File.query.filter_by(generated_name = file_name).first()
+            if found_file == None:
+                return redirect(url_for('admin_uploads'))
+            # construct path to file in file system
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], found_file.generated_name+found_file.format)
+            # delete file
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            # if file not exist delete from db
+            if not os.path.exists(file_path):
+                File.query.filter_by(generated_name = file_name).delete()
         db.session.commit()
     return redirect(url_for('admin_uploads'))
-    
+
+# change public files status by links to protected or backwards
+@app.route('/admin/uploads/public-change/', methods = ['POST'])
+@login_required
+def file_public_change():
+    if current_user.admin_role:
+        # files that was checked
+        files = request.form.getlist('names')
+        # change public file to protected or backwards
+        for file_name in files:
+            found_file = File.query.filter_by(generated_name = file_name).first()
+            if found_file == None:
+                return redirect(url_for('admin_uploads'))
+            found_file.public = not found_file.public
+        db.session.commit()
+    return redirect(url_for('admin_uploads'))
 
 # download file by link
-@app.route('/uploads/<file_name>')
+@app.route('/uploads/<file_name>', methods = ['POST', 'GET'])
 @login_required
 def download_file(file_name):
     found_file = File.query.filter_by(generated_name = file_name).first()
@@ -209,4 +222,4 @@ def download_file(file_name):
         found_file.download_count += 1
         db.session.commit()
         # download file with normal file name
-        return send_file(file_path, download_name = found_file.file_name+found_file.format, as_attachment=True)
+        return send_file(file_path, download_name = found_file.file_name+found_file.format)
