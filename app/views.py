@@ -224,4 +224,4 @@ def download_file(file_name):
         # logging
         logging.info(f"User {current_user.username} downloaded file {found_file.generated_name} with name {found_file.file_name+found_file.format}")
         # download file with normal file name
-        return send_file(file_path, download_name = found_file.file_name+found_file.format)
+        return send_file(file_path, download_name = found_file.file_name+found_file.format, as_attachment=True)
