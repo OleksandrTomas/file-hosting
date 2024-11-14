@@ -36,7 +36,7 @@ def index():
                                 "format":file.format,
                                 "size":file.size,
                                 "download_count":file.download_count})
-        return render_template('index-loged.html',  files_list = files_list)
+        return render_template('index-loged.html',  files_list = files_list, csrf = csrf)
     # if user is not logged in return empty home page
     else:
         return render_template('index.html')
@@ -93,6 +93,7 @@ def login():
                 error = 'Wrong password'
         else:
             error = 'Unknown User'
+        return render_template('login.html', form=form, error = error, csrf = csrf)
     else:
         return render_template('login.html', form=form, error = error, csrf = csrf)
     

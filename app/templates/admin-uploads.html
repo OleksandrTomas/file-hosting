@@ -3,41 +3,63 @@
 {% block title %} Admin Page {% endblock %} 
 
 {% block content %}
-    <form method=post enctype="multipart/form-data" id="upload-file" action="/admin/uploads/new">
-        {{ form.csrf_token(form="upload-file") }}
-        {{ form.file(form="upload-file")}}
-        <br>
-        {{ form.check_public(form="upload-file")}} {{ form.check_public.label}}
-        <p><input type=submit value=Upload>
-    </form>
-    <br></br>
+    <br>
+    <div class="container">
+        <div class="row">
+            <form method=post enctype="multipart/form-data" id="upload-file" action="/admin/uploads/new">
+                {{ form.csrf_token(form="upload-file") }}
+                {{ form.file(form="upload-file",  class="form-control form-control-lg",id="formFileLg" )}}
+                
+                    <div class="form-check form-switch">
+                        <br>
+                        {{ form.check_public(form="upload-file",  class="form-check-input", role="switch",id="flexSwitchCheckDefault")}} 
+                        {{ form.check_public.label}} 
+                        <input class="btn btn-primary  mx-5" type=submit value=Upload>
+                   </div>
+                    
+            </form>
+        </div>
+    </div>
     
+    <br></br>
+    <div class="container">
+        <div class="row">
+            <form  method=post id="change-delete-file">
+                    {{ form.csrf_token}}
+                    <input type=submit class="btn btn-danger float-end" formaction="/admin/uploads/delete/" value="Delete Files">
+                    <input type=submit class="btn btn-primary float-end mx-4" formaction="/admin/uploads/public-change/" value="Change Status">
+               
+                    <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">File Name</th>
+                    <th scope="col"></th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Format</th>
+                    <th scope="col">Size</th>
+                    <th scope="col">Download count</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for file in files_list %}
+                        <tr>
+                            <td>{{file.name}}</td>
+                            <td><button class="btn btn-success" formaction={{ "/uploads/" ~ file.generated}} >Download</button></td>
+                            {% if file.public %} <td ><div class="text-success-emphasis">Public</div></td> 
+                            {% else %} <td><div class="text-danger-emphasis">Protected</div></td> {% endif %}
+                            <td>{{file.format}}</td>
+                            <td>{{file.size ~ "Kb"}}</td>
+                            <td>{{file.download_count}}</td>
+                            <td class="table-active"><input class="form-check-input"  type="checkbox" name ="names" value={{ file.generated}}></td>
 
-    <form onsubmit="() => window.location.reload();"  method=post id="change-delete-file">
-        {{ form.csrf_token}}
-        <input type=submit formaction="/admin/uploads/public-change/" value="Change Public Status">
-        <input type=submit formaction="/admin/uploads/delete/" value="Delete">
-        {% for file in files_list %}
-            <p>{{file.name}} 
-                <button formaction={{ "/uploads/" ~ file.generated}} >Download</button>|
-                {% if file.public %} Public {% else %} Protected {% endif %} |
-                {{file.format}} | 
-                {{file.size}} | 
-                {{file.download_count}}
-                <input type="checkbox" name ="names" value={{ file.generated}}>
-            </p>
-        {% endfor %}
-        
-    </form>
-        <script>
-            function downn(){
+                        
+                        </tr>
+                    {% endfor %}
+                </tbody>
+              </table>
+            </form>
+        </div>
+    </div>
 
-            }
-            function refreshPage(){
-               location.reload ? location.reload() : location = location;
-           }
-            if ( window.history.replaceState ) {
-                window.history.replaceState( null, null, window.location.href );
-            }
-        </script>
 {% endblock content %}

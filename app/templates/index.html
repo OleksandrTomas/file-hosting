@@ -3,9 +3,11 @@
 {% block title %} Home {% endblock %} 
 
 {% block content %}
-    <h1>Hello</h1>
-    <a href="/login">login</a>
-    <a href="/logout">logout</a>
-    <a href="/register">register</a>
-    <a href="/admin/uploads">Admin</a>
+    <br>
+        <h2 class="text-center">Perhaps, You want to Login or Register?</h2>
+    <br>
+    <div class="text-center">
+        <a class="btn btn-primary  mx-4" aria-current="page" href={{url_for('login')}}>Login</a>
+        <a class="btn btn-success" aria-current="page" href={{url_for('register')}}>Register</a>
+    </div>
 {% endblock content %}

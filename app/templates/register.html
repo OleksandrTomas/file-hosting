@@ -3,21 +3,38 @@
 {% block title %} Register {% endblock %} 
 
 {% block content %}
-    {% from "helpers/formhelper.html" import render_field %}
-    <form method=post>
-    <dl>
-        {{ form.csrf_token }}
-        {{ render_field(form.username) }}
-        {{ render_field(form.password) }}
-        {{ render_field(form.confirm) }}
-    </dl>
-        {{ error }}
-    <p><input type=submit value=Register>
-    </form>
+    <div class="d-flex justify-content-center  align-items-center h-100">
+        <form method="post">
+            {{ form.csrf_token }}
+            <!-- Username input -->
+            <div data-mdb-input-init class="form-outline mb-4">
+                {{ form.username(class="form-control")}}
+              <label class="form-label" for="form1Example1">Username</label>
+            </div>
+          
+            <!-- Password input -->
+            <div data-mdb-input-init class="form-outline mb-4">
+                {{ form.password(class="form-control")}}
+              <label class="form-label" for="form1Example2">Password</label>
+            </div>
+            <!-- Confirm input -->
+            <div data-mdb-input-init class="form-outline mb-4">
+                {{ form.confirm(class="form-control")}}
+              <label class="form-label" for="form1Example2">Confirm Password</label>
+            </div>
+            <!-- Error message -->
+            <div class="form-outline mb-4">
+                <div class="text-center">
+                    {{error}}
+                </div>
+    
+            </div>
+            <!-- Submit button -->
+            <button data-mdb-ripple-init type="submit" class="btn btn-primary btn-block" value=Register>Register</button>
+                
+          </form>
+    </div>
 
-    <script>
-        if ( window.history.replaceState ) {
-            window.history.replaceState( null, null, window.location.href );
-        }
-    </script>
+
+   
 {% endblock content %}

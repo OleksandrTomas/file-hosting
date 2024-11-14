@@ -3,17 +3,40 @@
 {% block title %} Home {% endblock %} 
 
 {% block content %}
-    <h1>Hello</h1>
-    <a href="/login">login</a>
-    <a href="/logout">logout</a>
-    <a href="/register">register</a>
-    <a href="/admin/uploads">Admin</a>
 
-    <h1>Loged</h1>
 
-    {% for file in files_list %}
-    <p>{{file.name}} 
-        <a href={{ "/uploads/" ~ file.generated}}><button>Download</button></a>|
-        | {{ file.public}} | {{file.format}} | {{file.size}} | {{file.download_count}}</p>
-    {% endfor %}
+
+    <br>
+    <h2 class="text-center">Welcome, {{current_user.username}}</h2>
+    <br>
+
+    <div class="container">
+        <div class="row">
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">File Name</th>
+                    <th scope="col"></th>
+                    <th scope="col">Format</th>
+                    <th scope="col">Size</th>
+                    <th scope="col">Download count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for file in files_list %}
+                        <tr>
+                            <td>{{file.name}}</td>
+                            <td><a href={{ "/uploads/" ~ file.generated}}><button class="btn btn-success" formaction= >Download</button></a></td>
+                           
+                            <td>{{file.format}}</td>
+                            <td>{{file.size ~ "Kb"}}</td>
+                            <td>{{file.download_count}}</td>
+
+                        
+                        </tr>
+                    {% endfor %}
+                </tbody>
+              </table>
+        </div>
+    </div>
 {% endblock content %}

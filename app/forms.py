@@ -17,4 +17,4 @@ class RegistrationForm(FlaskForm):
 # admin page form
 class FileUploadForm(FlaskForm):
     file = MultipleFileField(validators = [InputRequired()])
-    check_public = BooleanField(u'Upload Files Public')
+    check_public = BooleanField(u'Upload Public')
