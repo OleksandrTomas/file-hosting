@@ -7,10 +7,9 @@ from flask_login    import login_user, logout_user, current_user, login_required
 from werkzeug.utils import secure_filename
 
 # import instances after initialization
-from app            import app, lm, db, bc
+from app            import app, lm, db, bc, csrf, logging
 from app.models     import User, File
 from app.forms      import LoginForm, RegistrationForm, FileUploadForm
-from app            import csrf
 
 # Callback for loading user from db by id 
 @lm.user_loader
@@ -221,5 +220,7 @@ def download_file(file_name):
         # increment download count
         found_file.download_count += 1
         db.session.commit()
+        # logging
+        logging.info(f"User {current_user.username} downloaded file {found_file.generated_name} with name {found_file.file_name+found_file.format}")
         # download file with normal file name
         return send_file(file_path, download_name = found_file.file_name+found_file.format)

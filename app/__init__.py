@@ -26,6 +26,9 @@ lm.init_app(app)
 
 csrf = CSRFProtect(app) 
 
+# logging settings
+logging.basicConfig(level=logging.INFO, filename="app_log.log",filemode="w", format="%(asctime)s %(levelname)s %(message)s")
+
 from app import views, models
 
 # create tables in db 
